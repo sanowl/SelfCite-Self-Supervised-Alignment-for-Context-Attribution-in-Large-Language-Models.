@@ -1,11 +1,11 @@
 import os
 import json
-import random
 import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM, get_linear_schedule_with_warmup
 from typing import List, Dict
 from data_utils import split_into_sentences, prepend_sentence_ids, build_model_input, load_dataset
 from selfcite import generate_response_with_selfcite
+import secrets
 
 def simpo_loss_fn(model: AutoModelForCausalLM, tokenizer: AutoTokenizer, chosen_text: str, rejected_text: str, alpha: float = 0.1) -> torch.Tensor:
     device = next(model.parameters()).device
@@ -49,7 +49,7 @@ def train_simpo(base_model_path: str, preference_data: List[Dict], learning_rate
     idx_list = list(range(len(preference_data)))
     step_count = 0
     for epoch in range(num_epochs):
-        random.shuffle(idx_list)
+        secrets.SystemRandom().shuffle(idx_list)
         for i in idx_list:
             item = preference_data[i]
             chosen_text = item['chosen_response']
